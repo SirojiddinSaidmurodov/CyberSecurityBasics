@@ -5,6 +5,16 @@ russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыь
 
 
 def get_setting(question, variants, error):
+    """
+        Function for setting the parameters of another functions
+        :type error: str
+        :type variants: int
+        :type question: str
+        :param question: your question with variants of answers
+        :param variants: number of your variants of answer
+        :param error: what to print when entered variant is not valid
+        :return: chosen variant
+        """
     while True:
         result = int(input(question))
         if variants + 1 > result > 0:
@@ -31,9 +41,6 @@ def check_keys(text, alphabet):
         text = text[:20]
     for key in range(1, len(alphabet)):
         print(str(key) + "::  " + cipher(text, key, alphabet, False))
-
-
-print(cipher("qeb nrfzh yoltk clu grjmp lsbo qeb ixwv ald", 23, latin_alphabet, False))
 
 
 def application():

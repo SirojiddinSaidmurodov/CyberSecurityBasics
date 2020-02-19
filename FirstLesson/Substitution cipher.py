@@ -6,6 +6,16 @@ russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыь
 
 # function to fet the answers for the questions
 def get_setting(question, variants, error):
+    """
+        Function for setting the parameters of another functions
+        :type error: str
+        :type variants: int
+        :type question: str
+        :param question: your question with variants of answers
+        :param variants: number of your variants of answer
+        :param error: what to print when entered variant is not valid
+        :return: chosen variant
+        """
     while True:
         result = int(input(question))
         if variants + 1 > result > 0:
@@ -93,5 +103,4 @@ def application():
     print(substitution(text, key, is_encrypting))
 
 
-while True:
-    application()
+application()
