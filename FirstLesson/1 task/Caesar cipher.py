@@ -25,8 +25,8 @@ def get_setting(question, variants, error):
 
 def cipher(text, key, alphabet, is_Encrypt):
     key = -key if not is_Encrypt else key
-    text = text.lower()
     cipheredtext = ""
+    text = text.lower()
     for letter in text:
         index = alphabet.find(letter)
         if index >= 0:
@@ -56,7 +56,7 @@ def application():
         while True:
             path = input("Enter the path to your text file:\n")
             if os.path.exists(path) & os.path.isfile(path):
-                file = open(path, 'r')
+                file = open(path, 'r', encoding='utf-8')
                 break
             else:
                 print("Wrong path, try again")
@@ -67,15 +67,26 @@ def application():
 
     else:
         text = str(input("Enter your text to command line:\n"))
+    output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")
+
     if encrypt:
         key = int(input("Enter the key:\n"))
         key = key % len(alphabet)
-        print(cipher(text, key, alphabet, True))
+        if output == 1:
+            print(cipher(text, key, alphabet, True))
+        else:
+            file = open("output.txt", 'w', encoding='utf-8')
+            file.writelines(cipher(text, key, alphabet, True))
+            file.close()
     else:
         check_keys(text, alphabet)
         key = int(input("Enter key:\n"))
-        print(cipher(text, key, alphabet, False))
+        if output == 1:
+            print(cipher(text, key, alphabet, False))
+        else:
+            file = open("output.txt", 'w', encoding='utf-8')
+            file.writelines(cipher(text, key, alphabet, False))
+            file.close()
 
 
-while True:
-    application()
+application()

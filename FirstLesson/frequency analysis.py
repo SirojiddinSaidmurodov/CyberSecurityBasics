@@ -36,6 +36,7 @@ def analysis(file, alphabet, is_learning):
                 else:
                     frequencies[char] = 1
     text.close()
+
     results = open("results.txt", 'w')
     temp = []
     for key, value in frequencies:
