@@ -17,7 +17,10 @@ def get_setting(question, variants, error):
         :return: chosen variant
         """
     while True:
-        result = int(input(question))
+        try:
+            result = int(input(question))
+        except ValueError:
+            result = -1
         if variants + 1 > result > 0:
             return result
         else:
@@ -44,7 +47,7 @@ def key_reader():
     Function for reading the key from file
     :return: key
     """
-    file = open("Key.txt", 'r')
+    file = open("Key.txt", 'r', encoding='utf-8')
     key = {}
     for line in file.readlines():
         key[line[0]] = line[1]
@@ -57,7 +60,7 @@ def key_saver(key):
     Function for saving the key to file
     :return: void
     """
-    file = open("Key.txt", 'w')
+    file = open("Key.txt", 'w', encoding='utf-8')
     for letter in key.keys():
         file.write(str(letter) + str(key.get(letter)) + "\n")
     file.close()
@@ -72,6 +75,7 @@ def substitution(input_text: str, key, is_Encrypt):
     :param is_Encrypt: bool
     :return: str
     """
+    input_text = input_text.lower()
     encrypted_text = ""
     if is_Encrypt:
         key = {y: x for x, y in key.items()}
@@ -103,4 +107,5 @@ def application():
     print(substitution(text, key, is_encrypting))
 
 
-application()
+while True:
+    application()

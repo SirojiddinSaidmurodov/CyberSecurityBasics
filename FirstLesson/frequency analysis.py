@@ -16,7 +16,10 @@ def get_setting(question, variants, error):
     :return: chosen variant
     """
     while True:
-        result = int(input(question))
+        try:
+            result = int(input(question))
+        except ValueError:
+            result = -1
         if variants + 1 > result > 0:
             return result
         else:

@@ -10,13 +10,16 @@ def get_setting(question, variants, error):
         :type error: str
         :type variants: int
         :type question: str
-        :param question: your question with variants of answers
+        :param question: your question with va riants of answers
         :param variants: number of your variants of answer
         :param error: what to print when entered variant is not valid
         :return: chosen variant
         """
     while True:
-        result = int(input(question))
+        try:
+            result = int(input(question))
+        except ValueError:
+            result = -1
         if variants + 1 > result > 0:
             return result
         else:
@@ -37,8 +40,8 @@ def cipher(text, key, alphabet, is_Encrypt):
 
 
 def check_keys(text, alphabet):
-    if len(text) > 20:
-        text = text[:20]
+    if len(text) > 30:
+        text = text[:30]
     for key in range(1, len(alphabet)):
         print(str(key) + "::  " + cipher(text, key, alphabet, False))
 
