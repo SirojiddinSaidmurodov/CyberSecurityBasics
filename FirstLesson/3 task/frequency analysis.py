@@ -51,9 +51,7 @@ def analysis(file, alphabet, is_learning):
     return temp
 
 
-def application():
-    alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
-    alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
+def input_text():
     while True:
         path = input("Enter the path to your encrypted text file:\n")
         if os.path.exists(path) & os.path.isfile(path):
@@ -65,9 +63,12 @@ def application():
     for line in file.readlines():
         encrypted_text += line
     file.close()
+    return encrypted_text
+
+
+def set_analise(alphabet):
     need_analysis = True if get_setting("Do you want to analise the plain text?\n1 - yes\n2 - no\n", 2,
                                         "Wrong answer, try again") == 1 else False
-
     if need_analysis:
         while True:
             plain_path = input("Enter the path to your plain text file:\n")
@@ -83,9 +84,20 @@ def application():
         for lines in results_file.readlines():
             temp = lines.split(' ')
             general_results.append((temp[0], temp[1]))
+    return general_results
 
+
+def application():
+    alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
+    alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
+    encrypted_text = input_text()
+    general_results = set_analise(alphabet)
     #  encrypted text analysis
-
     encrypted_results = analysis(encrypted_text, alphabet, False)
+    encrypted_key = {}
+    for i in range(len(alphabet)):
+        encrypted_letter, frequency = encrypted_results[i]
+        decrypted_letter, freq = general_results[i]
+        encrypted_key[encrypted_letter] = decrypted_letter
 
     # print(analysis("data_rus.txt", russian_alphabet, True))

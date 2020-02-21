@@ -87,12 +87,7 @@ def substitution(input_text: str, key, is_Encrypt):
     return encrypted_text
 
 
-def application():
-    alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
-    alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
-    encrypt = get_setting("I want to...\n"
-                          "1 - encrypt the text\n"
-                          "2 - decrypt the text\n", 2, "Wrong variant, choose the valid one\n")
+def input_text():
     input_type = get_setting("Choose the type of your input text:\n1 - text from command line\n2 - file\n", 2,
                              "Wrong type, try again!\n")
     if input_type == 2:
@@ -109,6 +104,16 @@ def application():
         input_file.close()
     else:
         text = str(input("Enter your text to command line:\n"))
+    return text
+
+
+def application():
+    alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
+    alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
+    encrypt = get_setting("I want to...\n"
+                          "1 - encrypt the text\n"
+                          "2 - decrypt the text\n", 2, "Wrong variant, choose the valid one\n")
+    text = input_text()
     output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")
 
     if encrypt == 1:
