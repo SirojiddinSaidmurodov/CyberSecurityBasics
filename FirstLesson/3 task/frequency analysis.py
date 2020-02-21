@@ -39,38 +39,53 @@ def analysis(file, alphabet, is_learning):
                 else:
                     frequencies[char] = 1
     text.close()
-
-    results = open("results.txt", 'w', encoding='utf-8')
     temp = []
     for key, value in frequencies.items():
         temp.append((key, value / chars * 100))  # counting the frequencies in percents
     temp.sort(key=lambda tup: tup[1], reverse=True)  # sorting list using second item of
     if is_learning:
+        results = open("results.txt", 'w', encoding='utf-8')
         for (key, value) in temp:
-            results.write(str(key) + " " + str(value)+"\n")
-    results.close()
+            results.write(str(key) + " " + str(value) + "\n")
+        results.close()
     return temp
 
 
 def application():
     alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
     alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
-    input_type = get_setting("Choose the type of your input text:\n1 - text from command line\n2 - file\n", 2,
-                             "Wrong type, try again!\n")
-    if input_type == 2:
+    while True:
+        path = input("Enter the path to your encrypted text file:\n")
+        if os.path.exists(path) & os.path.isfile(path):
+            file = open(path, 'r')
+            break
+        else:
+            print("Wrong path, try again")
+    encrypted_text = ""
+    for line in file.readlines():
+        encrypted_text += line
+    file.close()
+    need_analysis = True if get_setting("Do you want to analise the plain text?\n1 - yes\n2 - no\n", 2,
+                                        "Wrong answer, try again") == 1 else False
+
+    if need_analysis:
         while True:
-            path = input("Enter the path to your text file:\n")
-            if os.path.exists(path) & os.path.isfile(path):
-                file = open(path, 'r')
+            plain_path = input("Enter the path to your plain text file:\n")
+            if os.path.exists(plain_path) & os.path.isfile(plain_path):
+                plain_file = open(plain_path, 'r')
                 break
             else:
                 print("Wrong path, try again")
-        text = ""
-        for line in file.readlines():
-            text += line
-        file.close()
+        general_results = analysis(plain_file, alphabet, True)
     else:
-        text = str(input("Enter your text to command line:\n"))
+        results_file = open('results.txt', 'r', encoding='utf-8')
+        general_results = []
+        for lines in results_file.readlines():
+            temp = lines.split(' ')
+            general_results.append((temp[0], temp[1]))
 
+    #  encrypted text analysis
 
-print(analysis("data_rus.txt", russian_alphabet, True))
+    encrypted_results = analysis(encrypted_text, alphabet, False)
+
+    # print(analysis("data_rus.txt", russian_alphabet, True))

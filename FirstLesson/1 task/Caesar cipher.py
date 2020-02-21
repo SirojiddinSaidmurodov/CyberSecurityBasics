@@ -50,9 +50,9 @@ def application():
     alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
     alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
     encrypt = get_setting(
-        "Enter the number:\n1 - if you want to encrypt something\n2 - if you want to decrypt something\n",
-        2, "Wrong variant, try again!\n")
-    encrypt = True if encrypt == 1 else False
+        "Enter the number:\n1 - if you want to encrypt something\n"
+        "2 - if you want to decrypt something\n3 - you want to hack\n",
+        3, "Wrong variant, try again!\n")
     input_type = get_setting("Choose the type of your input text:\n1 - text from command line\n2 - file\n", 2,
                              "Wrong type, try again!\n")
     if input_type == 2:
@@ -71,7 +71,7 @@ def application():
         text = str(input("Enter your text to command line:\n"))
     output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")
 
-    if encrypt:
+    if encrypt == 1:
         key = int(input("Enter the key:\n"))
         key = key % len(alphabet)
         if output == 1:
@@ -80,7 +80,7 @@ def application():
             file = open("output.txt", 'w', encoding='utf-8')
             file.writelines(cipher(text, key, alphabet, True))
             file.close()
-    else:
+    elif encrypt == 3:
         check_keys(text, alphabet)
         key = int(input("Enter key:\n"))
         if output == 1:
@@ -89,6 +89,10 @@ def application():
             file = open("output.txt", 'w', encoding='utf-8')
             file.writelines(cipher(text, key, alphabet, False))
             file.close()
+    else:
+        decipher_key = int(input("Enter the key for deciphering the text:\n"))
+        decipher_key %= len(alphabet)
+        print(cipher(text, decipher_key, alphabet, False))
 
 
 application()
