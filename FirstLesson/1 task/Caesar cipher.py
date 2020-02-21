@@ -67,7 +67,6 @@ def application():
         for line in file.readlines():
             text += line
         file.close()
-
     else:
         text = str(input("Enter your text to command line:\n"))
     output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")

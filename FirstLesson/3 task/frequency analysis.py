@@ -27,27 +27,27 @@ def get_setting(question, variants, error):
 
 
 def analysis(file, alphabet, is_learning):
-    text = open(file, 'r')
+    text = open(file, 'r', encoding='utf-8')
     chars = 0
     frequencies = {}
     for line in text.readlines():
         for char in line:
             if char in alphabet:
                 chars += 1
-                if char in dict:
+                if char in frequencies.keys():
                     frequencies[char] += 1
                 else:
                     frequencies[char] = 1
     text.close()
 
-    results = open("results.txt", 'w')
+    results = open("results.txt", 'w', encoding='utf-8')
     temp = []
-    for key, value in frequencies:
+    for key, value in frequencies.items():
         temp.append((key, value / chars * 100))  # counting the frequencies in percents
-    temp.sort(key=lambda tup: tup[1])  # sorting list using second item of
+    temp.sort(key=lambda tup: tup[1], reverse=True)  # sorting list using second item of
     if is_learning:
-        for key, value in temp:
-            results.write(key + " " + value)
+        for (key, value) in temp:
+            results.write(str(key) + " " + str(value)+"\n")
     results.close()
     return temp
 
@@ -71,3 +71,6 @@ def application():
         file.close()
     else:
         text = str(input("Enter your text to command line:\n"))
+
+
+print(analysis("data_rus.txt", russian_alphabet, True))

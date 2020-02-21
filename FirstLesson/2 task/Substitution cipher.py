@@ -1,8 +1,11 @@
 from random import randint
+import os
 
 latin_alphabet = "abcdefghijklmnopqrstuvwxyz"
 russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыьэюя"
 
+
+# TODO: make file input and output, take it from caesar cipher
 
 # function to fet the answers for the questions
 def get_setting(question, variants, error):
@@ -90,6 +93,24 @@ def application():
     encrypt = get_setting("I want to...\n"
                           "1 - encrypt the text\n"
                           "2 - decrypt the text\n", 2, "Wrong variant, choose the valid one\n")
+    input_type = get_setting("Choose the type of your input text:\n1 - text from command line\n2 - file\n", 2,
+                             "Wrong type, try again!\n")
+    if input_type == 2:
+        while True:
+            path = input("Enter the path to your text file:\n")
+            if os.path.exists(path) & os.path.isfile(path):
+                input_file = open(path, 'r', encoding='utf-8')
+                break
+            else:
+                print("Wrong path, try again")
+        text = ""
+        for line in input_file.readlines():
+            text += line
+        input_file.close()
+    else:
+        text = str(input("Enter your text to command line:\n"))
+    output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")
+
     if encrypt == 1:
         is_encrypting = True
         file = get_setting("I want to encrypt the text with:\n"
@@ -103,9 +124,12 @@ def application():
     else:
         is_encrypting = False
         key = key_reader()
-    text = input("Enter the text:\n")
-    print(substitution(text, key, is_encrypting))
+    if output == 1:
+        print(substitution(text, key, is_encrypting))
+    else:
+        output_file = open("output.txt", 'w', encoding='utf-8')
+        output_file.writelines(substitution(text, key, is_encrypting))
+        output_file.close()
 
 
-while True:
-    application()
+application()
