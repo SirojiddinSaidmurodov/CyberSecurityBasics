@@ -69,21 +69,26 @@ def key_saver(key):
     file.close()
 
 
-def substitution(input_text: str, key, is_Encrypt):
+def substitution(text: str, key, is_Encrypt):
     """
     Substitution ciphering function. Key is a dict (plain, encrypted) letters
-    :type input_text: str
-    :param input_text: text for encrypting or decrypting
+    :type text: str
+    :param text: text for encrypting or decrypting
     :param key: dict
     :param is_Encrypt: bool
     :return: str
     """
-    input_text = input_text.lower()
     encrypted_text = ""
     if is_Encrypt:
         key = {y: x for x, y in key.items()}
-    for i in range(len(input_text)):
-        encrypted_text += key.get(input_text[i], input_text[i])
+    for letter in text:
+        upper = True if letter.isupper() else False
+        letter = letter.lower()
+        letter = key.get(letter, letter)
+        if upper:
+            encrypted_text += letter.upper()
+        else:
+            encrypted_text += letter
     return encrypted_text
 
 
@@ -132,7 +137,7 @@ def application():
     if output == 1:
         print(substitution(text, key, is_encrypting))
     else:
-        output_file = open("output.txt", 'w', encoding='utf-8')
+        output_file = open("../3 task/Ciphered.txt", 'w', encoding='utf-8')
         output_file.writelines(substitution(text, key, is_encrypting))
         output_file.close()
 

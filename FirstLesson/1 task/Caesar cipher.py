@@ -28,15 +28,18 @@ def get_setting(question, variants, error):
 
 def cipher(text, key, alphabet, is_Encrypt):
     key = -key if not is_Encrypt else key
-    cipheredtext = ""
-    text = text.lower()
+    ciphered_text = ""
     for letter in text:
+        upper = True if letter.isupper() else False
+        letter = letter.lower()
         index = alphabet.find(letter)
         if index >= 0:
-            cipheredtext += alphabet[(key + index) % len(alphabet)]
+            letter = alphabet[(key + index) % len(alphabet)]
+        if upper:
+            ciphered_text += letter.upper()
         else:
-            cipheredtext += letter
-    return cipheredtext
+            ciphered_text += letter
+    return ciphered_text
 
 
 def check_keys(text, alphabet):
