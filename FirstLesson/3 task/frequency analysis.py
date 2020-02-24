@@ -1,5 +1,5 @@
 import os.path
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 
 latin_alphabet = "abcdefghijklmnopqrstuvwxyz"
 russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыьэюя"
@@ -29,7 +29,7 @@ def get_setting(question: str, variants: int, error: str):
 
 def analysis(text: str, alphabet: str, is_learning: bool) -> list:
     """
-
+    Function for counting the frequency of letters in the text, saves results in file if is_learning == True
     :param is_learning: True if saving to file needed
     :type is_learning: bool
     :param text: input text for analysing
@@ -51,7 +51,13 @@ def analysis(text: str, alphabet: str, is_learning: bool) -> list:
     temp = []
     for key, value in frequencies.items():
         temp.append((key, value / chars * 100))  # counting the frequencies in percents
-    temp.sort(key=lambda tup: tup[1], reverse=True)  # sorting list using second item of
+    if len(frequencies) != len(alphabet):
+        buffer = alphabet
+        for letter, value in temp:
+            buffer = buffer.replace(letter, '')
+        for ch in buffer:
+            temp.append((ch, 0))
+    temp.sort(key=lambda tup: tup[1], reverse=True)  # sorting list using second item of tuples
     if is_learning:
         results = open("results.txt", 'w', encoding='utf-8')
         for (key, value) in temp:
@@ -62,7 +68,7 @@ def analysis(text: str, alphabet: str, is_learning: bool) -> list:
 
 def input_text():
     """
-
+    Function for reading encrypted text
     :return: text read from file
     :rtype: str
     """
@@ -80,9 +86,9 @@ def input_text():
     return encrypted_text
 
 
-def set_analise(alphabet):
+def set_analyse(alphabet) -> list:
     """
-
+    Function for analysing the plain text, for counting the frequencies od letters
     :param alphabet: alphabet of plain text
     :type alphabet: str
     :return: list of tuples (letter, frequency)
@@ -113,7 +119,7 @@ def set_analise(alphabet):
     return general_results
 
 
-def make_key(key, value, is_List: bool) -> dict:
+def make_key(key: list, value: list, is_List: bool) -> dict:
     """
     Return the dict (letter,letter) as key
     :param is_List:
@@ -147,70 +153,110 @@ def substitution(text: str, key: dict, is_Encrypt: bool) -> str:
     :return: str
     """
     encrypted_text = ""
-    if is_Encrypt:
+    if not is_Encrypt:
         key = {y: x for x, y in key.items()}
-
     for letter in text:
         upper = True if letter.isupper() else False
-
         letter = letter.lower()
         letter = key.get(letter, letter)
-        if upper:
+        if upper and letter.upper() is not None:
             encrypted_text += letter.upper()
         else:
             encrypted_text += letter
     return encrypted_text
 
 
-def analise_key(text: str, key, alphabet: str, general_res):
+def analise_key(text: str, real_key, alphabet: str, general_res: list):
     """
     Function for computing the accuracy of keys depending on the length of text
+    :param general_res:
+    :type general_res:
     :param alphabet:
     :type alphabet:
-    :param key: original key
-    :type key: dict
+    :param real_key: original key
+    :type real_key: dict
     :type text: str
     """
     iterations = len(text) % 1000
     accuracy_list = []
-    for i in range(iterations):
+    for i in range(1, iterations - 600):  # we don't need the last 600 iterations for saving time(nothing gonna change)
         temp_text = text[:i * 1000]
         if i + 1 == iterations:
             temp_text = text
         temp_results = analysis(temp_text, alphabet, False)
-        temp_key = make_key(temp_results, general_res, False)
+        temp_key = make_key(general_res, temp_results, False)
         accuracy = 0
         for letter in alphabet:
-            if temp_key.get(letter) == key.get(letter):
+            if temp_key.get(letter) == real_key.get(letter):
                 accuracy += 1
-        accuracy_list.append(accuracy)
-    pyplot.plot(accuracy_list)
-    pyplot.show()
+        accuracy_list.append(accuracy / len(alphabet) * 100)
+    plt.plot(accuracy_list, color='red')
+    plt.title('Эффективность атаки')
+    plt.ylabel('Процентное количество угаданных букв')
+    plt.xlabel('Количество символов, тыс.')
+    plt.show()
+
+
+def effectiveness(encrypted_text: str, alphabet: str, general_results: list):
+    hack_analise = get_setting("Do you want to analise the efficiency of hacking?\n1 - yes\n2 - no\n", 2,
+                               "Wrong number, try again!\n")
+    if hack_analise == 1:
+        key_file = open('Key.txt', 'r', encoding='utf-8')
+        temp_key = []
+        temp_val = []
+        for line in key_file.readlines():
+            temp_key.append(line[0])
+            temp_val.append(line[1])
+        key_file.close()
+        analise_key(encrypted_text, make_key(temp_key, temp_val, True), alphabet, general_results)
+
+
+def edit_key(key: dict, letter_key: str, letter_value: str) -> dict:
+    temp = key.get(letter_key)
+    temp2 = key.get(letter_value)
+    key[letter_key] = temp2
+    key[letter_value] = temp
+    return key
+
+
+def output_edit_decipher(encrypted_text: str, key: dict):
+    if get_setting("Do you want to fully decipher your txt?\n1 - yes\n2 - no\n", 2, "Wrong number, try again!\n") == 1:
+        done = False
+        while not done:
+            output_file = open("Output.txt", 'w', encoding='utf-8')
+            output_file.write(substitution(encrypted_text, key.copy(), False))
+            output_file.flush()
+            output_file.close()
+            while True:
+                try:
+                    entered: str = input("Your currently deciphered text is in the <Output.txt>,\n"
+                                         " if you want to change current key enter two letters:\n"
+                                         "letter you see+letter you want to see. Type double letter for quit\n")
+                    if entered[0] == entered[1]:
+                        done = True
+                        break
+
+                    if len(entered) == 2 and entered[0] in key.keys() and entered[1] in key.keys():
+                        key = edit_key(key.copy(), entered[0], entered[1])
+                        break
+                    else:
+                        print("Error, try again!")
+                except ValueError:
+                    print("Error, try again!")
 
 
 def application():
     alphabet = get_setting("Choose an alphabet:\n1 - Latin\n2 - Cyrillic\n", 2, "Wrong alphabet, try again\n")
     alphabet = latin_alphabet if alphabet == 1 else russian_alphabet
-
     encrypted_text = input_text()
-    general_results = set_analise(alphabet)
+    general_results = set_analyse(alphabet)
 
-    #  encrypted text analysis
-    encrypted_results = analysis(encrypted_text, alphabet, False)  # encrypted text analysis
-    encrypted_key = make_key(encrypted_results, general_results, False)  # key for deciphering
-    print(substitution(encrypted_text, encrypted_key, False))
-    # key_file = open('Key.txt', 'r', encoding='utf-8')
-    # temp_key = ''
-    # temp_val = ''
-    # for line in key_file.readlines():
-    #     temp_key += line[1]
-    #     temp_val += line[0]
-    # print(encrypted_key)
-    # print(make_key(temp_key, temp_val, True))
-    # analise_key(encrypted_text, make_key(temp_key, temp_val, True), alphabet, general_results)
+    encrypted_results = analysis(encrypted_text, alphabet, False)  # encrypted text analysis, counting freqs
 
+    encrypted_key = make_key(general_results.copy(), encrypted_results.copy(), False)  # key for deciphering norm
 
-# print(analysis("data_rus.txt", russian_alphabet, True))
+    effectiveness(encrypted_text, alphabet, general_results.copy())
+    output_edit_decipher(encrypted_text, encrypted_key.copy())
 
 
 application()

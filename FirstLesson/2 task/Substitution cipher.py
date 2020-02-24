@@ -79,13 +79,13 @@ def substitution(text: str, key, is_Encrypt):
     :return: str
     """
     encrypted_text = ""
-    if is_Encrypt:
+    if not is_Encrypt:
         key = {y: x for x, y in key.items()}
     for letter in text:
         upper = True if letter.isupper() else False
         letter = letter.lower()
         letter = key.get(letter, letter)
-        if upper:
+        if upper and letter.upper() is not None:
             encrypted_text += letter.upper()
         else:
             encrypted_text += letter
@@ -135,10 +135,10 @@ def application():
         is_encrypting = False
         key = key_reader()
     if output == 1:
-        print(substitution(text, key, is_encrypting))
+        print(substitution(text, key.copy(), is_encrypting))
     else:
-        output_file = open("../3 task/Ciphered.txt", 'w', encoding='utf-8')
-        output_file.writelines(substitution(text, key, is_encrypting))
+        output_file = open("Ciphered.txt", 'w', encoding='utf-8')
+        output_file.writelines(substitution(text, key.copy(), is_encrypting))
         output_file.close()
 
 
