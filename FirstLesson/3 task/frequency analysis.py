@@ -29,17 +29,18 @@ def get_setting(question: str, variants: int, error: str):
 
 def analysis(text: str, alphabet: str, is_learning: bool) -> list:
     """
-    Function for counting the frequency of letters in the text, saves results in file if is_learning == True
-    :param is_learning: True if saving to file needed
+    Function for counting the frequency of letters in the text, saves results in file if is_learning == True.
+    :param is_learning: True if saving to file needed.
     :type is_learning: bool
-    :param text: input text for analysing
+    :param text: input text for analysing.
     :type text: str
-    :param alphabet: alphabet of input text
+    :param alphabet: alphabet of input text.
     :type alphabet: str
-    :return list of tuples, which consists letter and its frequency, sort by their frequency
+    :return list of tuples, which consists letter and its frequency, sort by their frequency.
     """
     chars = 0
     frequencies = {}
+    dict.fromkeys(alphabet, 0)
     for char in text:
         char = char.lower()
         if char in alphabet:
@@ -133,6 +134,7 @@ def make_key(key: list, value: list, is_List: bool) -> dict:
     """
     output_key = {}
     if is_List:
+        # {k, v for k, v in zip(key, value)}
         for i in range(len(key)):
             output_key[key[i]] = value[i]
     else:
@@ -177,9 +179,9 @@ def analise_key(text: str, real_key, alphabet: str, general_res: list):
     :type real_key: dict
     :type text: str
     """
-    iterations = len(text) % 1000
+    iterations = len(text) // 1000
     accuracy_list = []
-    for i in range(1, iterations - 600):  # we don't need the last 600 iterations for saving time(nothing gonna change)
+    for i in range(1, iterations):  # we don't need the last 600 iterations for saving time(nothing gonna change)
         temp_text = text[:i * 1000]
         if i + 1 == iterations:
             temp_text = text
@@ -198,6 +200,14 @@ def analise_key(text: str, real_key, alphabet: str, general_res: list):
 
 
 def effectiveness(encrypted_text: str, alphabet: str, general_results: list):
+    """
+    Function for assessing the effectiveness of deciphering
+    :param alphabet: alphabet of text
+    :type alphabet: str
+    :type encrypted_text: str
+    :param encrypted_text: encrypted text
+    :type general_results: list
+    """
     hack_analise = get_setting("Do you want to analise the efficiency of hacking?\n1 - yes\n2 - no\n", 2,
                                "Wrong number, try again!\n")
     if hack_analise == 1:
@@ -212,6 +222,12 @@ def effectiveness(encrypted_text: str, alphabet: str, general_results: list):
 
 
 def edit_key(key: dict, letter_key: str, letter_value: str) -> dict:
+    """
+
+    :param letter_key: the letter that you see in the text
+    :type letter_key: str
+    :type letter_value: str
+    """
     temp = key.get(letter_key)
     temp2 = key.get(letter_value)
     key[letter_key] = temp2

@@ -3,6 +3,7 @@ import os.path
 latin_alphabet = "abcdefghijklmnopqrstuvwxyz"
 russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыьэюя"
 
+alphabets = {0: latin_alphabet}
 
 def get_setting(question, variants, error):
     """
@@ -30,7 +31,7 @@ def cipher(text, key, alphabet, is_Encrypt):
     key = -key if not is_Encrypt else key
     ciphered_text = ""
     for letter in text:
-        upper = True if letter.isupper() else False
+        upper = letter.isupper()
         letter = letter.lower()
         index = alphabet.find(letter)
         if index >= 0:
@@ -43,10 +44,9 @@ def cipher(text, key, alphabet, is_Encrypt):
 
 
 def check_keys(text, alphabet):
-    if len(text) > 30:
-        text = text[:30]
+    text = text[:50]
     for key in range(1, len(alphabet)):
-        print(str(key) + "::  " + cipher(text, key, alphabet, False))
+        print(" {i:2d}".format(i=key) + "  >>  " + cipher(text, key, alphabet, False))
 
 
 def application():
@@ -61,17 +61,18 @@ def application():
     if input_type == 2:
         while True:
             path = input("Enter the path to your text file:\n")
-            if os.path.exists(path) & os.path.isfile(path):
+            if os.path.exists(path) and os.path.isfile(path):
                 file = open(path, 'r', encoding='utf-8')
                 break
             else:
                 print("Wrong path, try again")
-        text = ""
-        for line in file.readlines():
-            text += line
+        text = "".join(line for line in file.readlines())
+
         file.close()
     else:
-        text = str(input("Enter your text to command line:\n"))
+        text = input("Enter your text to command line:\n")
+
+
     output = get_setting("Choose the output type:\n1 - commandline\n2 - file\n", 2, "Wrong variant, try again!")
 
     if encrypt == 1:

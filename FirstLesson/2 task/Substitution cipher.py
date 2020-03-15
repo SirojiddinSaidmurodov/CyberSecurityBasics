@@ -5,9 +5,6 @@ latin_alphabet = "abcdefghijklmnopqrstuvwxyz"
 russian_alphabet = "абвгдеёжзийклмнопрстуфхцшщчъыьэюя"
 
 
-# TODO: make file input and output, take it from caesar cipher
-
-# function to fet the answers for the questions
 def get_setting(question, variants, error):
     """
         Function for setting the parameters of another functions
@@ -37,7 +34,7 @@ def key_generator(alphabet: str):
     :param alphabet: str of alphabet
     :return: dict randomly generated key
     """
-    temp = [i for i in alphabet]
+    temp = list(alphabet)
     key = []
     for letter in alphabet:
         key.append((letter, temp.pop(randint(0, len(temp) - 1))))
@@ -50,9 +47,12 @@ def key_reader():
     Function for reading the key from file
     :return: key
     """
+    with open() as f:
+        pass
     file = open("Key.txt", 'r', encoding='utf-8')
-    key = {}
-    for line in file.readlines():
+    key = {line[0]: line[1] for line in file}
+
+    for line in file:
         key[line[0]] = line[1]
     file.close()
     return key
@@ -64,8 +64,8 @@ def key_saver(key):
     :return: void
     """
     file = open("Key.txt", 'w', encoding='utf-8')
-    for letter in key.keys():
-        file.write(str(letter) + str(key.get(letter)) + "\n")
+    for letter in key:
+        file.write(str(letter) + str(key[letter]) + "\n")
     file.close()
 
 
@@ -82,7 +82,7 @@ def substitution(text: str, key, is_Encrypt):
     if not is_Encrypt:
         key = {y: x for x, y in key.items()}
     for letter in text:
-        upper = True if letter.isupper() else False
+        upper = letter.isupper()
         letter = letter.lower()
         letter = key.get(letter, letter)
         if upper and letter.upper() is not None:
