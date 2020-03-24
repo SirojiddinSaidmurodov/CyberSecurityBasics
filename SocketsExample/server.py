@@ -21,4 +21,5 @@ while True:
     else:
         break
 
+print("Shutting off")
 conn.close()

@@ -3,7 +3,7 @@ import socket
 sock = socket.socket()
 sock.connect(('localhost', 9999))
 while True:
-    print("Enter your message <type 'quit' for stopping process> :\n")
+    print("Enter your message <type 'quit' for stopping process> :")
     message = input()
     try:
         number = int(message)
