@@ -1,2 +1,2 @@
 # Sockets Example
-Run server.py first, then client.py
+Run [server](server.py "Server application") first, then [client](client.py "Client application")
