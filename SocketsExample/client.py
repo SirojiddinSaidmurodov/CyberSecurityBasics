@@ -8,7 +8,7 @@ while True:
     try:
         number = int(message)
         sock.send(b'\x55\x55')
-        numberB = number.to_bytes((number.bit_length() + 7) // 8, byteorder='little', signed=True)
+        numberB = number.to_bytes((number.bit_length() + 7) // 8, byteorder='big', signed=True)
         sock.send(len(numberB).to_bytes(1000, byteorder='big'))
         sock.send(numberB)
     except ValueError:

@@ -16,7 +16,7 @@ while True:
         print(message.decode("utf-8"))
     elif messageType == b'\x55\x55':
         print("Receiving number")
-        number = int.from_bytes(conn.recv(msgLen), byteorder='little', signed=True)
+        number = int.from_bytes(conn.recv(msgLen), byteorder='big', signed=True)
         print(number)
     elif messageType == b'\x00\x00':
         break
