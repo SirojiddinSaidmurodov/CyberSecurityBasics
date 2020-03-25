@@ -16,7 +16,8 @@ while True:
             sock.send(b'\x00\x00')
             break
         sock.send(b'\x11\x11')
-        sock.send(len(message).to_bytes(1000, byteorder='big'))
-        sock.send(bytes(message, "utf-8"))
+        messageB = message.encode("utf-8")
+        sock.send(len(messageB).to_bytes(1000, byteorder='big'))
+        sock.send(messageB)
 
 sock.close()

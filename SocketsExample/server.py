@@ -18,7 +18,7 @@ while True:
         print("Receiving number")
         number = int.from_bytes(conn.recv(msgLen), byteorder='little', signed=True)
         print(number)
-    else:
+    elif messageType == b'\x00\x00':
         break
 
 print("Shutting off")
