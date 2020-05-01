@@ -1,6 +1,6 @@
 import random
 
-import RSA.Additional.QuickExp as Exp
+import RSA.Additional.quick_exp as Exp
 
 
 def isPrimeTrialDivision(n: int) -> bool:
