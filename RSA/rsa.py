@@ -1,12 +1,16 @@
 import math
 import random
-
 import RSA.Additional.euclidean_algorithms as euclid
 import RSA.Additional.prime as prime
 import RSA.Additional.quick_exp as exp
 
 
 def get_random_prime_number(length: int) -> int:
+    """
+    Function returns random and prime number
+    :param length bit length of result
+    :type length: int
+    """
     a = 2 ** (length - 1)
     b = (a * 2) - 1
     while True:
@@ -16,10 +20,19 @@ def get_random_prime_number(length: int) -> int:
 
 
 def get_random_mutually_prime_number(number: int) -> int:
+    """
+    :return A random number that coprime (mutually prime) number
+    :type number: int
+    """
     while True:
         result = random.randint(1, number)
         if euclid.gcd(result, number) == 1:
             return result
+
+
+def encrypt(m: int, key: tuple):
+    e, n = key
+    return exp.exp_mod(m, e, n)
 
 
 class RSAKeyGen:
@@ -30,7 +43,7 @@ class RSAKeyGen:
         self.e = 0
         self.d = 0
 
-    def get_public_key(self, length: int):
+    def get_public_key(self, length: int = 512):
         if not self.isInit:
             p = get_random_prime_number(length)
             q = get_random_prime_number(length)
