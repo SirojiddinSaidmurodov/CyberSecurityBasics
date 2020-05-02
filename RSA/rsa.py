@@ -1,5 +1,6 @@
 import math
 import random
+
 import RSA.Additional.euclidean_algorithms as euclid
 import RSA.Additional.prime as prime
 import RSA.Additional.quick_exp as exp
@@ -53,7 +54,7 @@ class RSAKeyGen:
             self.isInit = True
         return self.e, self.n
 
-    def get_decryption_key(self):
+    def get_secret_key(self):
         if not self.isInit:
             raise Exception
         gcd, x, y = euclid.PAE(self.e, self.fi)

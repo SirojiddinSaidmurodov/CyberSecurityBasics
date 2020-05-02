@@ -1,11 +1,15 @@
 import socket
+from tkinter import *
 
 import RSA.rsa as rsa
-from tkinter import *
 
 sock = socket.socket()
 serverIP = ""
 serverPort = 0
+keygen = rsa.RSAKeyGen()
+e, n = keygen.get_public_key()
+d = keygen.get_secret_key()
+flag = True
 
 
 def initConnection(a: str, b: int):
@@ -19,6 +23,7 @@ def initConnection(a: str, b: int):
     root.title("Connected")
     serverIP, serverPort = a, b
     frame.destroy()
+    reg()
 
 
 def connect_to_server():
@@ -43,11 +48,42 @@ def connect_to_server():
     connect_button.grid(row=1, column=0, padx=10, pady=10)
 
 
+def sendUserName(name: str, notification: StringVar):
+    global flag
+    if flag:
+        sock.send(b'\x11\x11')
+        flag = False
+    nameB = name.encode('utf-8')
+    if len(nameB) > 40:
+        notification.set("Too long name!")
+        return
+    sock.send(nameB)
+    if sock.recv(2) == b'\x00\x00':
+        notification.set('The name "' + name + '" already in use. Choose another one!')
+        return
+    sock.send(e.to_bytes(256, byteorder='big', signed=False))
+    sock.send(n.to_bytes(256, byteorder='big', signed=False))
+    frame.destroy()
+
+
+def reg():
+    global frame
+    frame = LabelFrame(root, text='Registration')
+    frame.pack(padx=5, pady=5, expand=1)
+    message = StringVar()
+    label = Label(frame, textvariable=message)
+    message.set("Enter your name:")
+    label.grid(row=0, column=0, padx=10, pady=10)
+    username_entry = Entry(frame)
+    username_entry.grid(row=1, column=0)
+    btn = Button(frame, text="Send!", command=lambda: sendUserName(username_entry.get(), message))
+    btn.grid(row=2, column=0)
+
+
 root = Tk()
 frame = LabelFrame(root, text="Enter server address")
 root.geometry("400x600+400+50")
 root.title("RSA-клиент. Автор: Саидмуродов Сирожиддин")
 root.resizable(0, 0)
 connect_to_server()
-
 root.mainloop()

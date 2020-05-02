@@ -3,7 +3,7 @@ import socket
 sock = socket.socket()
 sock.bind(('', 9999))
 sock.listen(5)
-key_length = 512
+key_length = 256
 users = []
 
 
@@ -12,6 +12,8 @@ def getuser(name: str) -> int:
         user_name, x, addr = users[i]
         if user_name == name:
             return i
+    if len(users) == 0:
+        return 1
     return -1
 
 
@@ -33,9 +35,9 @@ while True:
     conn_type = conn.recv(2)
     if conn_type == b'\x11\x11':
         print("Registering a new user")
-        isExists = 0
+        isExists = -1
         username = ""
-        while isExists >= 0:
+        while isExists <= 0:
             username = conn.recv(40).decode('utf-8')
             isExists = getuser(username)
             if isExists < 0:
