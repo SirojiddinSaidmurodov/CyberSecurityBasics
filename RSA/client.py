@@ -4,9 +4,12 @@ import RSA.rsa as rsa
 from tkinter import *
 
 sock = socket.socket()
+serverIP = ""
+serverPort = 0
 
 
-def reg(a: str, b):
+def initConnection(a: str, b: int):
+    global serverIP, serverPort
     try:
         sock.connect((a, int(b)))
     except Exception as e:
@@ -14,6 +17,7 @@ def reg(a: str, b):
         print(e)
         return
     root.title("Connected")
+    serverIP, serverPort = a, b
     frame.destroy()
 
 
@@ -34,7 +38,8 @@ def connect_to_server():
 
     serverIP_entry.grid(row=0, column=1, padx=5, pady=5)
     serverPort_entry.grid(row=1, column=1, padx=5, pady=5)
-    connect_button = Button(frame, text="Connect!", command=lambda: reg(serverIP_entry.get(),serverPort_entry.get()))
+    connect_button = Button(frame, text="Connect!",
+                            command=lambda: initConnection(serverIP_entry.get(), serverPort_entry.get()))
     connect_button.grid(row=1, column=0, padx=10, pady=10)
 
 
