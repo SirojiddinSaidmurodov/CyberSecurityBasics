@@ -28,7 +28,7 @@ def send_user(host_socket: socket.socket, user_index):
 
 
 while True:
-    print("Waiting for new connection...")
+    print("Waiting for a new connection...")
     conn, adr = sock.accept()
     ip, port = adr
     print("Connection was established with: " + str(ip) + ":" + str(port))
