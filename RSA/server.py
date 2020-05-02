@@ -12,8 +12,6 @@ def getuser(name: str) -> int:
         user_name, x, addr = users[i]
         if user_name == name:
             return i
-    if len(users) == 0:
-        return 1
     return -1
 
 
@@ -35,9 +33,9 @@ while True:
     conn_type = conn.recv(2)
     if conn_type == b'\x11\x11':
         print("Registering a new user")
-        isExists = -1
+        isExists = 1
         username = ""
-        while isExists <= 0:
+        while isExists > 0:
             username = conn.recv(40).decode('utf-8')
             isExists = getuser(username)
             if isExists < 0:
@@ -62,5 +60,4 @@ while True:
             send_user(conn, index)
             print("Requested user was sent...")
 
-    conn.close()
     print("Closing connection...")
