@@ -7,12 +7,14 @@ import RSA.rsa as rsa
 class Client:
     def __init__(self, root_widget: Tk):
         self.sock = socket.socket()
-        self.serverIP, self.serverPort = '', 0
-        self.IP, self.Port = '', 0
-        self.peerIP, self.peerPort = '', 0
+        self.serverAdr = ('', 0)
+        self.adr = ('', 0)
+        self.peerAdr = ('', 0)
+        self.peerKey = (0, 0)
+        self.username = ""
         self.keygen = rsa.RSAKeyGen()
-        self.e, self.n = self.keygen.get_public_key()
-        self.d = self.keygen.get_secret_key()
+        self.pKey = self.keygen.get_public_key()
+        self.sKey = self.keygen.get_secret_key()
         self.root = root_widget
         self.frame = LabelFrame(root_widget, text="Enter server address")
         root_widget.geometry("400x600+400+50")
@@ -36,19 +38,20 @@ class Client:
         serverIP_entry.grid(row=0, column=1, padx=5, pady=5)
         serverPort_entry.grid(row=1, column=1, padx=5, pady=5)
         connect_button = Button(self.frame, text="Connect!",
-                                command=lambda: self.__initConnection__(serverIP_entry.get(), serverPort_entry.get()))
+                                command=lambda: self.__initConnection__(serverIP_entry.get(),
+                                                                        int(serverPort_entry.get())))
         connect_button.grid(row=1, column=0, padx=10, pady=10)
 
     def __initConnection__(self, a: str, b: int):
         try:
-            self.sock.connect((a, int(b)))
+            self.sock.connect((a, b))
         except Exception as e:
             self.root.title("Can't connect!")
             print(e)
             return
         self.root.title("Connected")
-        self.serverIP, self.serverPort = a, b
-        self.IP, self.Port = self.sock.getsockname()
+        self.serverAdr = (a, b)
+        self.adr = self.sock.getsockname()
         self.frame.destroy()
         self.__reg__()
 
@@ -74,8 +77,10 @@ class Client:
         if self.sock.recv(2) == b'\x11\x11':
             notification.set('The name "' + name + '" already in use. Choose another one!')
             return
-        self.sock.send(self.e.to_bytes(256, byteorder='big', signed=False))
-        self.sock.send(self.n.to_bytes(256, byteorder='big', signed=False))
+        e, n = self.pKey
+        self.sock.send(e.to_bytes(256, byteorder='big', signed=False))
+        self.sock.send(n.to_bytes(256, byteorder='big', signed=False))
+        self.username = name
         self.frame.destroy()
         self.sock.close()
         self.__new_chat__()
@@ -83,12 +88,47 @@ class Client:
     def __new_chat__(self):
         self.frame = LabelFrame(self.root, text="Creating new chat")
         self.frame.pack(padx=5, pady=5, expand=1)
-        btn1 = Button(self.frame, text="Connect to peer")
-        btn2 = Button(self.frame, text="Wait for connection")
+        btn1 = Button(self.frame, text="Connect to peer", command=self.__connect_to_peer__())
+        btn2 = Button(self.frame, text="Wait for connection", command=self.__wait__())
         btn1.grid(row=0, column=0, padx=10, pady=10)
         btn2.grid(row=1, column=0, padx=10, pady=10)
+
+    def __wait__(self):
+        self.frame.destroy()
+        self.root.title("Waiting for connection")
         self.sock = socket.socket()
-        self.sock.bind((self.IP, self.Port))
+        self.sock.bind(self.adr)
+        self.sock.listen(1)
+        conn, self.peerAdr = self.sock.accept()
+        #  TODO: waiting for connection
+
+    def __connect_to_peer__(self):
+        self.frame.destroy()
+        self.frame = LabelFrame(self.root, text="Enter peer name")
+        self.frame.pack(padx=5, pady=5, expand=1)
+        entry = Entry(self.frame)
+        entry.grid(row=0, column=0, padx=10, pady=10)
+        btn = Button(self.frame, command=self.__get_user_while_connect__)
+        btn.grid(row=0, column=1, padx=10, pady=10)
+
+    def __get_user__(self):
+        self.sock = socket.socket()
+        self.sock.connect(self.serverAdr)
+        self.sock.send(b'\x55\x55')
+        if self.sock.recv(2) == b'\x00\x00':
+            return False
+        self.peerKey = (int.from_bytes(self.sock.recv(256), byteorder='big', signed=False),
+                        int.from_bytes(self.sock.recv(256), byteorder='big', signed=False))
+        self.peerAdr = (
+            self.sock.recv(50).decode("utf-8"), int.from_bytes(self.sock.recv(16), byteorder='big', signed=False))
+        self.sock.close()
+        return True
+
+    def __get_user_while_connect__(self):
+        if not self.__get_user__():
+            return
+        else:
+            self.__chat_create_
 
 
 if __name__ == "__main__":
