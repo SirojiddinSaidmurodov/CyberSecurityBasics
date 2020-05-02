@@ -1,8 +1,5 @@
 import socket
 
-sock = socket.socket()
-sock.bind(('', 9999))
-sock.listen(5)
 key_length = 256
 users = []
 
@@ -26,6 +23,9 @@ def send_user(host_socket: socket.socket, user_index):
 
 
 while True:
+    sock = socket.socket()
+    sock.bind(('', 9999))
+    sock.listen(5)
     print("Waiting for a new connection...")
     conn, adr = sock.accept()
     ip, port = adr
@@ -48,16 +48,22 @@ while True:
         print("New user added: " + username + ", key:")
         print("     e -> " + str(e))
         print("     n -> " + str(n))
+        conn.close()
+        sock.close()
     elif conn_type == b'\x55\x55':
         print("Public key request handling...")
         username = conn.recv(40).decode('utf-8')
+        print(username)
         index = getuser(username)
         if index == -1:
             conn.send(b'\x00\x00')
             print("Didn't found such user...")
         else:
             conn.send(b'\x11\x11')
+            print("Sending user data...")
             send_user(conn, index)
             print("Requested user was sent...")
+        conn.close()
+        sock.close()
 
     print("Closing connection...")

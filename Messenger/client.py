@@ -7,11 +7,16 @@ import RSA.rsa as rsa
 class Client:
     def __init__(self, root_widget: Tk):
         self.sock = socket.socket()
+        self.sender: socket
+        self.receiver: socket
+        self.chat: Text
+        self.message: StringVar
         self.serverAdr = ('', 0)
         self.adr = ('', 0)
         self.peerAdr = ('', 0)
         self.peerKey = (0, 0)
         self.username = ""
+        self.peerName = ""
         self.keygen = rsa.RSAKeyGen()
         self.pKey = self.keygen.get_public_key()
         self.sKey = self.keygen.get_secret_key()
@@ -88,8 +93,8 @@ class Client:
     def __new_chat__(self):
         self.frame = LabelFrame(self.root, text="Creating new chat")
         self.frame.pack(padx=5, pady=5, expand=1)
-        btn1 = Button(self.frame, text="Connect to peer", command=self.__connect_to_peer__())
-        btn2 = Button(self.frame, text="Wait for connection", command=self.__wait__())
+        btn1 = Button(self.frame, text="Connect to peer", command=self.__connect_to_peer__)
+        btn2 = Button(self.frame, text="Wait for connection", command=self.__wait__)
         btn1.grid(row=0, column=0, padx=10, pady=10)
         btn2.grid(row=1, column=0, padx=10, pady=10)
 
@@ -99,8 +104,13 @@ class Client:
         self.sock = socket.socket()
         self.sock.bind(self.adr)
         self.sock.listen(1)
-        conn, self.peerAdr = self.sock.accept()
-        #  TODO: waiting for connection
+        self.receiver, _ = self.sock.accept()
+        self.peerName = self.receiver.recv(40).decode('utf-8')
+        self.__get_user__(self.peerName)
+        sock = socket.socket()
+        sock.connect(self.peerAdr)
+        self.sender = sock
+        self.__open_chat__()
 
     def __connect_to_peer__(self):
         self.frame.destroy()
@@ -108,27 +118,70 @@ class Client:
         self.frame.pack(padx=5, pady=5, expand=1)
         entry = Entry(self.frame)
         entry.grid(row=0, column=0, padx=10, pady=10)
-        btn = Button(self.frame, command=self.__get_user_while_connect__)
+        btn = Button(self.frame, command=lambda s=entry.get(): self.__get_user_while_connect__(s))
         btn.grid(row=0, column=1, padx=10, pady=10)
 
-    def __get_user__(self):
-        self.sock = socket.socket()
-        self.sock.connect(self.serverAdr)
-        self.sock.send(b'\x55\x55')
-        if self.sock.recv(2) == b'\x00\x00':
+    def __get_user_while_connect__(self, name):
+        if not self.__get_user__(name):
+            return
+        self.__request_conn__()
+
+    def __get_user__(self, userName: str):
+        sock = socket.socket()
+        sock.connect(self.serverAdr)
+        sock.send(b'\x55\x55')
+        print(userName)
+        sock.send(userName.encode('utf-8'))
+        if sock.recv(2) == b'\x00\x00':
             return False
-        self.peerKey = (int.from_bytes(self.sock.recv(256), byteorder='big', signed=False),
-                        int.from_bytes(self.sock.recv(256), byteorder='big', signed=False))
+        self.peerKey = (int.from_bytes(sock.recv(256), byteorder='big', signed=False),
+                        int.from_bytes(sock.recv(256), byteorder='big', signed=False))
         self.peerAdr = (
-            self.sock.recv(50).decode("utf-8"), int.from_bytes(self.sock.recv(16), byteorder='big', signed=False))
-        self.sock.close()
+            sock.recv(50).decode("utf-8"), int.from_bytes(sock.recv(16), byteorder='big', signed=False))
+        sock.close()
+        self.peerName = userName
         return True
 
-    def __get_user_while_connect__(self):
-        if not self.__get_user__():
-            return
-        else:
-            self.__chat_create_
+    def __request_conn__(self):
+        self.sender = socket.socket()
+        self.sender.connect(self.peerAdr)
+        self.sender.send(self.username.encode("utf-8"))
+        self.sock = socket.socket()
+        self.sock.bind(self.adr)
+        self.sock.listen(1)
+        self.receiver, _ = self.sock.accept()
+        self.__open_chat__()
+
+    def __listen__(self):
+        message = self.receiver.recv(1000).decode("utf-8")
+        message = "\n" + self.peerName + ":\n" + message + "\n"
+        self.chat.insert(END, message)
+        self.root.after(1, self.__listen__())
+
+    def __send_message__(self):
+        message: str = self.message.get()
+        self.sender.send(message.encode('utf-8'))
+        message = "\n" + self.username + ":\n" + message + "\n"
+        self.chat.insert(END, message)
+        self.message.set('')
+
+    def __open_chat__(self):
+        self.frame.destroy()
+        frame_name = "Chat with " + self.peerName
+        self.frame = LabelFrame(self.root, text=frame_name)
+        self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
+        self.root.title = "You: " + self.username
+        self.chat = Text(self.frame)
+        self.chat.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        send_frame = Frame(self.frame)
+        send_frame.grid(row=1, column=0, padx=5, pady=5)
+        self.message = StringVar()
+        entry = Entry(send_frame, textvariable=self.message)
+        entry.grid(row=0, column=0, padx=5, pady=5)
+        btn = Button(send_frame)
+        btn.grid(row=0, column=1, padx=5, pady=5, command=self.__send_message__)
+
+        self.root.after(1, self.__listen__())
 
 
 if __name__ == "__main__":
