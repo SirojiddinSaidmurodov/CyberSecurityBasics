@@ -95,6 +95,7 @@ class Client:
         self.frame.pack(padx=5, pady=5, expand=1)
         btn1 = Button(self.frame, text="Connect to peer", command=self.__connect_to_peer__)
         btn2 = Button(self.frame, text="Wait for connection", command=self.__wait__)
+        self.root.title("Your nickname: " + self.username)
         btn1.grid(row=0, column=0, padx=10, pady=10)
         btn2.grid(row=1, column=0, padx=10, pady=10)
 
@@ -118,7 +119,7 @@ class Client:
         self.frame.pack(padx=5, pady=5, expand=1)
         entry = Entry(self.frame)
         entry.grid(row=0, column=0, padx=10, pady=10)
-        btn = Button(self.frame, command=lambda s=entry.get(): self.__get_user_while_connect__(s))
+        btn = Button(self.frame, text="send!", command=lambda: self.__get_user_while_connect__(entry.get()))
         btn.grid(row=0, column=1, padx=10, pady=10)
 
     def __get_user_while_connect__(self, name):
@@ -140,6 +141,8 @@ class Client:
             sock.recv(50).decode("utf-8"), int.from_bytes(sock.recv(16), byteorder='big', signed=False))
         sock.close()
         self.peerName = userName
+        print(self.peerKey)
+        print(self.peerAdr)
         return True
 
     def __request_conn__(self):
@@ -153,10 +156,16 @@ class Client:
         self.__open_chat__()
 
     def __listen__(self):
-        message = self.receiver.recv(1000).decode("utf-8")
-        message = "\n" + self.peerName + ":\n" + message + "\n"
-        self.chat.insert(END, message)
-        self.root.after(1, self.__listen__())
+        self.receiver.setblocking(False)
+        try:
+            message = self.receiver.recv(1000).decode("utf-8")
+            message = "\n" + self.peerName + ":\n" + message + "\n"
+            self.chat.insert(END, message)
+        except:
+            self.root.after(1, self.__listen__)
+            return
+        self.root.after(1, self.__listen__)
+        return
 
     def __send_message__(self):
         message: str = self.message.get()
@@ -172,16 +181,13 @@ class Client:
         self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
         self.root.title = "You: " + self.username
         self.chat = Text(self.frame)
-        self.chat.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        send_frame = Frame(self.frame)
-        send_frame.grid(row=1, column=0, padx=5, pady=5)
+        self.chat.grid(row=0, column=0, padx=5, pady=5)
         self.message = StringVar()
-        entry = Entry(send_frame, textvariable=self.message)
-        entry.grid(row=0, column=0, padx=5, pady=5)
-        btn = Button(send_frame)
-        btn.grid(row=0, column=1, padx=5, pady=5, command=self.__send_message__)
-
-        self.root.after(1, self.__listen__())
+        entry = Entry(self.frame, textvariable=self.message)
+        entry.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        btn = Button(self.frame, command=self.__send_message__, text="Send")
+        btn.grid(row=2, column=0, padx=5, pady=5)
+        self.root.after(1, self.__listen__)
 
 
 if __name__ == "__main__":

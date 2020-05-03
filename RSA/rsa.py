@@ -37,17 +37,18 @@ def encrypt(m: int, key: tuple):
 
 
 class RSAKeyGen:
-    def __init__(self):
+    def __init__(self, length: int = 512):
         self.isInit = False
+        self.length = length
         self.fi = 0
         self.n = 0
         self.e = 0
         self.d = 0
 
-    def get_public_key(self, length: int = 512):
+    def get_public_key(self):
         if not self.isInit:
-            p = get_random_prime_number(length)
-            q = get_random_prime_number(length)
+            p = get_random_prime_number(self.length)
+            q = get_random_prime_number(self.length)
             self.fi = (p - 1) * (q - 1)
             self.n = p * q
             self.e = get_random_mutually_prime_number(self.fi)
