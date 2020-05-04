@@ -6,10 +6,8 @@ import RSA.rsa as rsa
 
 class Client:
     def __init__(self):
-        self.sock = socket.socket()
-        self.sender: socket
-        self.receiver: socket
-        self.chat: Text
+        self.sender = socket.socket()
+        self.receiver = socket.socket()
         self.serverAdr = ('', 0)
         self.adr = ('', 0)
         self.peerAdr = ('', 0)
@@ -21,21 +19,22 @@ class Client:
         self.sKey = self.keygen.get_secret_key()
 
     def connect2server(self, name, address):
+        sock = socket.socket()
         try:
-            self.sock.connect(address)
+            sock.connect(address)
         except Exception:
             raise Exception("Can't connect")
-        self.sock.send(b'\x11\x11')
+        sock.send(b'\x11\x11')
         self.serverAdr = address
-        self.adr = self.sock.getsockname()
-        self.sock.send(name.encode('utf-8'))
-        if self.sock.recv(2) == b'\x11\x11':
+        self.adr = sock.getsockname()
+        sock.send(name.encode('utf-8'))
+        if sock.recv(2) == b'\x11\x11':
             raise Exception('The name "' + name + '" already in use. Choose another one!')
         e, n = self.pKey
-        self.sock.send(e.to_bytes(256, byteorder='big', signed=False))
-        self.sock.send(n.to_bytes(256, byteorder='big', signed=False))
+        sock.send(e.to_bytes(256, byteorder='big', signed=False))
+        sock.send(n.to_bytes(256, byteorder='big', signed=False))
         self.username = name
-        self.sock.close()
+        sock.close()
 
     def get_peer(self, name: str):
         sock = socket.socket()
@@ -54,25 +53,24 @@ class Client:
             return True
 
     def wait(self):
-        self.sock = socket.socket()
-        self.sock.bind(self.adr)
-        self.sock.listen(1)
-        self.receiver, _ = self.sock.accept()
+        sock = socket.socket()
+        sock.bind(self.adr)
+        sock.listen(1)
+        self.receiver, _ = sock.accept()
         self.peerName = self.receiver.recv(40).decode('utf-8')
         self.get_peer(self.peerName)
-        sock = socket.socket()
-        sock.connect(self.peerAdr)
-        self.sender = sock
+        self.sender = socket.socket()
+        self.sender.connect(self.peerAdr)
 
     def connect2peer(self, name):
         if self.get_peer(name):
             self.sender = socket.socket()
             self.sender.connect(self.peerAdr)
             self.sender.send(self.username.encode("utf-8"))
-            self.sock = socket.socket()
-            self.sock.bind(self.adr)
-            self.sock.listen(1)
-            self.receiver, _ = self.sock.accept()
+            sock = socket.socket()
+            sock.bind(self.adr)
+            sock.listen(1)
+            self.receiver, _ = sock.accept()
             return True
         else:
             return False
