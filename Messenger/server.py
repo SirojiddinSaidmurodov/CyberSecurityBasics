@@ -33,22 +33,17 @@ while True:
     conn_type = conn.recv(2)
     if conn_type == b'\x11\x11':
         print("Registering a new user")
-        isExists = 1
-        username = ""
-        while isExists > 0:
-            username = conn.recv(40).decode('utf-8')
-            isExists = getuser(username)
-            # TODO make server close connection, if there is no such user
-            if isExists < 0:
-                conn.send(b'\x00\x00')
-            else:
-                conn.send(b'\x11\x11')
-        e = int.from_bytes(conn.recv(key_length), byteorder='big', signed=False)
-        n = int.from_bytes(conn.recv(key_length), byteorder='big', signed=False)
-        users.append((username, (e, n), adr))
-        print("New user added: " + username + ", key:")
-        print("     e -> " + str(e))
-        print("     n -> " + str(n))
+        username = conn.recv(40).decode('utf-8')
+        if getuser(username) < 0:
+            conn.send(b'\x00\x00')
+        else:
+            conn.send(b'\x11\x11')
+            e = int.from_bytes(conn.recv(key_length), byteorder='big', signed=False)
+            n = int.from_bytes(conn.recv(key_length), byteorder='big', signed=False)
+            users.append((username, (e, n), adr))
+            print("New user added: " + username + ", key:")
+            print("     e -> " + str(e))
+            print("     n -> " + str(n))
         conn.close()
         sock.close()
     elif conn_type == b'\x55\x55':
@@ -56,7 +51,7 @@ while True:
         username = conn.recv(40).decode('utf-8')
         print(username)
         index = getuser(username)
-        if index == -1:
+        if index < 0:
             conn.send(b'\x00\x00')
             print("Didn't found such user...")
         else:

@@ -8,15 +8,11 @@ class Client:
     def __init__(self):
         self.sender = socket.socket()
         self.receiver = socket.socket()
-        self.serverAdr = ('', 0)
-        self.adr = ('', 0)
-        self.peerAdr = ('', 0)
+        self.serverAdr = self.adr = self.peerAdr = ('', 0)
+        self.username = self.peerName = ""
         self.peerKey = (0, 0)
-        self.username = ""
-        self.peerName = ""
         self.keygen = rsa.RSAKeyGen()
         self.pKey = self.keygen.get_public_key()
-        self.sKey = self.keygen.get_secret_key()
 
     def connect2server(self, name, address):
         sock = socket.socket()
@@ -28,7 +24,8 @@ class Client:
         self.serverAdr = address
         self.adr = sock.getsockname()
         sock.send(name.encode('utf-8'))
-        if sock.recv(2) == b'\x11\x11':
+        if sock.recv(2) == b'\x00\x00':
+            sock.close()
             raise Exception('The name "' + name + '" already in use. Choose another one!')
         e, n = self.pKey
         sock.send(e.to_bytes(256, byteorder='big', signed=False))
@@ -41,9 +38,7 @@ class Client:
         sock.connect(self.serverAdr)
         sock.send(b'\x55\x55')
         sock.send(name.encode('utf-8'))
-        if sock.recv(2) == b'\x00\x00':
-            return False
-        else:
+        if sock.recv(2) == b'\x11\x11':
             self.peerName = name
             self.peerKey = (int.from_bytes(sock.recv(256), byteorder='big', signed=False),
                             int.from_bytes(sock.recv(256), byteorder='big', signed=False))
@@ -51,6 +46,8 @@ class Client:
                 sock.recv(50).decode("utf-8"), int.from_bytes(sock.recv(16), byteorder='big', signed=False))
             sock.close()
             return True
+        sock.close()
+        return False
 
     def wait(self):
         sock = socket.socket()

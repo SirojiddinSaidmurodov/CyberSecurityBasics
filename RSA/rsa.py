@@ -59,9 +59,9 @@ class RSAKeyGen:
         if not self.isInit:
             raise Exception
         gcd, x, y = euclid.PAE(self.e, self.fi)
-        while x < 0:
+        if x < 0:
             x += self.fi
-        while x > self.fi:
+        if x > self.fi:
             x -= self.fi
         self.d = x
         return self.d
