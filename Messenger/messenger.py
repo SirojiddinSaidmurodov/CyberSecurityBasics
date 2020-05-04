@@ -5,14 +5,12 @@ import Messenger.client as client
 
 class Messenger:
     def __init__(self, root):
-
         self.root = root
         self.root.geometry("400x600+400+50")
         self.root.title("RSA-клиент. Автор: Саидмуродов Сирожиддин")
-        self.root.resizable(0, 0)
-        self.chat: Text
+        # self.root.resizable(0, 0)
         self.frame = LabelFrame(self.root, text="Enter server address")
-        self.chat = Text(self.frame)
+        self.chat = Text()
         self.client = client.Client()
 
     def start(self):
@@ -51,7 +49,7 @@ class Messenger:
         self.frame.pack(padx=5, pady=5, expand=1)
         btn1 = Button(self.frame, text="Connect to peer", command=self.connect2peer)
         btn2 = Button(self.frame, text="Wait for connection", command=self.wait)
-        self.root.title("Your nickname: " + self.client.username)
+        self.root.title("Your nickname: " + self.client.userName)
         btn1.grid(row=0, column=0, padx=10, pady=10)
         btn2.grid(row=1, column=0, padx=10, pady=10)
 
@@ -82,6 +80,7 @@ class Messenger:
         frame_name = "Chat with " + self.client.peerName
         self.frame = LabelFrame(self.root, text=frame_name)
         self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
+        self.chat = Text(self.frame)
         self.chat.grid(row=0, column=0, padx=5, pady=5)
         message = StringVar()
         entry = Entry(self.frame, textvariable=message)
@@ -90,9 +89,12 @@ class Messenger:
         btn.grid(row=2, column=0, padx=5, pady=5)
         self.root.after(1, lambda: self.client.listen(self.root, self.chat))
 
-    def send(self, message: StringVar):
-        self.client.send(message.get())
-        message.set('')
+    def send(self, message_var: StringVar):
+        message = message_var.get()
+        self.client.send(message)
+        message = "\n" + self.client.userName + ":\n" + message + "\n"
+        self.chat.insert(END, message)
+        message_var.set('')
 
 
 if __name__ == "__main__":

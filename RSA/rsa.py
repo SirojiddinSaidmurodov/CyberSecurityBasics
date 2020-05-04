@@ -12,7 +12,7 @@ def get_random_prime_number(length: int) -> int:
     :param length bit length of result
     :type length: int
     """
-    a = 2 ** (length - 1)
+    a = 2 ** (length - 2)
     b = (a * 2) - 1
     while True:
         result = random.randint(a, b)
@@ -82,6 +82,9 @@ class RSAKeyGen:
         self.n = 0
         self.e = 0
         self.d = 0
+
+    def get_length(self):
+        return self.n.bit_length() // 8
 
 
 if __name__ == "__main__":
