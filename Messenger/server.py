@@ -34,7 +34,7 @@ while True:
     if conn_type == b'\x11\x11':
         print("Registering a new user")
         username = conn.recv(40).decode('utf-8')
-        if getuser(username) < 0:
+        if (getuser(username)) >= 0:
             conn.send(b'\x00\x00')
         else:
             conn.send(b'\x11\x11')

@@ -13,6 +13,7 @@ class Client:
         self.peerKey = (0, 0)
         self.keygen = rsa.RSAKeyGen()
         self.pKey = self.keygen.get_public_key()
+        self.keygen.get_secret_key()
 
     def connect2server(self, name, address):
         sock = socket.socket()
@@ -82,7 +83,7 @@ class Client:
             message = "\n" + self.peerName + ":\n" + message + "\n"
             chat.insert(END, message)
         except Exception:
-            root.after(1, self.listen)
+            root.after(1, lambda: self.listen(root, chat))
             return
-        root.after(1, self.listen)
+        root.after(1, lambda: self.listen(root, chat))
         return
