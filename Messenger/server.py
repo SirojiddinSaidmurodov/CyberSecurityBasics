@@ -38,6 +38,7 @@ while True:
         while isExists > 0:
             username = conn.recv(40).decode('utf-8')
             isExists = getuser(username)
+            # TODO make server close connection, if there is no such user
             if isExists < 0:
                 conn.send(b'\x00\x00')
             else:
@@ -65,5 +66,4 @@ while True:
             print("Requested user was sent...")
         conn.close()
         sock.close()
-
     print("Closing connection...")

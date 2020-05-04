@@ -37,3 +37,7 @@ def isPrimeMR(n: int, rounds: int) -> bool:
                 continue
         return False
     return True
+
+
+if __name__ == "__main__":
+    print(isPrimeMR(53, (50).bit_length()))

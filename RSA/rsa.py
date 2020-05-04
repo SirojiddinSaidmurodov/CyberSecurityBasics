@@ -82,3 +82,7 @@ class RSAKeyGen:
         self.n = 0
         self.e = 0
         self.d = 0
+
+
+if __name__ == "__main__":
+    print(RSAKeyGen().get_public_key())
