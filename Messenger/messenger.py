@@ -80,7 +80,7 @@ class Messenger:
         frame_name = "Chat with " + self.client.peerName
         self.frame = LabelFrame(self.root, text=frame_name)
         self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
-        self.chat = Text(self.frame)
+        self.chat = Text(self.frame, width=40)
         self.chat.grid(row=0, column=0, padx=5, pady=5)
         message = StringVar()
         entry = Entry(self.frame, textvariable=message)

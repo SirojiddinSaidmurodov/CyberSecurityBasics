@@ -15,6 +15,7 @@ class Client:
         self.pKey = self.keygen.get_public_key()
         self.keygen.get_secret_key()
         self.length = self.keygen.get_length()
+        self.cache = []
 
     def connect2server(self, name, address):
         sock = socket.socket()
@@ -81,16 +82,21 @@ class Client:
             chunk_bytes: bytes = chunk.encode('utf-8')
             hidden_message = rsa.encrypt(int.from_bytes(chunk_bytes, byteorder='big', signed=False), self.peerKey)
             self.sender.send(hidden_message.to_bytes(self.length + 1, byteorder='big', signed=False))
+        self.sender.send(b'\x00\x00')
 
     def listen(self, root, chat):
         self.receiver.setblocking(False)
         try:
             message = self.receiver.recv(self.length + 1)
-            plain_message = int.to_bytes(self.keygen.decrypt(int.from_bytes(message, byteorder='big', signed=False)),
-                                         self.length, byteorder='big', signed=False)
-            print(plain_message.decode('utf-8'))
-            text = "\n" + self.peerName + ":\n" + plain_message.decode('utf-8') + "\n"
-            chat.insert(END, text)
+            if message != b'\x00\x00':
+                plain_message = int.to_bytes(
+                    self.keygen.decrypt(int.from_bytes(message, byteorder='big', signed=False)),
+                    self.length, byteorder='big', signed=False)
+                self.cache.append(plain_message.decode('utf-8'))
+            else:
+                text = "\n" + self.peerName + ":\n" + "".join(self.cache) + "\n"
+                chat.insert(END, text)
+                self.cache.clear()
         except Exception:
             root.after(1, lambda: self.listen(root, chat))
             return
