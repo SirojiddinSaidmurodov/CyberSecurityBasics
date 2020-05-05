@@ -14,7 +14,7 @@ class Client:
         self.keygen = rsa.RSAKeyGen(length)
         self.pKey = self.keygen.get_public_key()
         self.keygen.get_secret_key()
-        self.length = self.keygen.get_length()
+        self.length = (length // 4)
         self.cache = []
 
     def connect2server(self, name, address):
@@ -75,26 +75,31 @@ class Client:
         else:
             return False
 
-    def send(self, message):
-        length = self.length // 2
-        chunks = [message[i: i + length] for i in range(0, len(message), length)]
+    def send(self, message: str):
+        message_bytes = message.encode('utf-8')
+        padding_length = (self.length - len(message_bytes) % self.length)
+        if padding_length > 0:
+            message_bytes = message_bytes + b'\x00' * padding_length
+        chunks = [message_bytes[i: i + self.length - 1] for i in range(0, len(message_bytes), self.length - 1)]
         for chunk in chunks:
-            chunk_bytes: bytes = chunk.encode('utf-8')
-            hidden_message = rsa.encrypt(int.from_bytes(chunk_bytes, byteorder='big', signed=False), self.peerKey)
-            self.sender.send(hidden_message.to_bytes(self.length + 1, byteorder='big', signed=False))
+            hidden_message = rsa.encrypt((int.from_bytes(chunk, byteorder='big', signed=False)), self.peerKey)
+            self.sender.send(hidden_message.to_bytes(self.length, byteorder='big', signed=False))
         self.sender.send(b'\x00\x00')
 
     def listen(self, root, chat):
         self.receiver.setblocking(False)
         try:
-            message = self.receiver.recv(self.length + 1)
-            if message != b'\x00\x00':
-                plain_message = int.to_bytes(
-                    self.keygen.decrypt(int.from_bytes(message, byteorder='big', signed=False)),
-                    self.length, byteorder='big', signed=False)
-                self.cache.append(plain_message.decode('utf-8'))
+            chunk = self.receiver.recv(self.length)
+            if chunk != b'\x00\x00':
+                plain = self.keygen.decrypt(int.from_bytes(chunk, byteorder='big', signed=False))
+                plain_bytes = int.to_bytes(plain, self.length - 1, byteorder='big', signed=False)
+                self.cache.append(plain_bytes.rstrip(b'\x00'))
             else:
-                text = "\n" + self.peerName + ":\n" + "".join(self.cache) + "\n"
+                message_bytes = b''.join(self.cache)
+                print(message_bytes)
+                message_text = message_bytes.decode('utf-8')
+                print(message_text)
+                text = "\n" + self.peerName + ":\n" + message_text + "\n"
                 chat.insert(END, text)
                 self.cache.clear()
         except Exception:
