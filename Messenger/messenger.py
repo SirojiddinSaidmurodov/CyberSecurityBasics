@@ -1,3 +1,4 @@
+from datetime import datetime
 from tkinter import *
 
 import Messenger.client as client
@@ -8,7 +9,7 @@ class Messenger:
         self.root = root
         self.root.geometry("400x600+400+50")
         self.root.title("RSA-клиент. Автор: Саидмуродов Сирожиддин")
-        # self.root.resizable(0, 0)
+        self.root.resizable(0, 0)
         self.frame = LabelFrame(self.root, text="Enter server address")
         self.chat = Text()
         self.client = client.Client()
@@ -80,21 +81,51 @@ class Messenger:
         frame_name = "Chat with " + self.client.peerName
         self.frame = LabelFrame(self.root, text=frame_name)
         self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
-        self.chat = Text(self.frame, width=40)
-        self.chat.grid(row=0, column=0, padx=5, pady=5)
+        self.chat = Text(self.frame, width=46, height=31)
+        self.chat.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+        self.chat.tag_add('sender', 1.0)
+        self.chat.tag_config('sender',
+                             font=("Bahnschrift", 12, 'bold'),
+                             background="#30e3ca",
+                             foreground='#40514e',
+                             justify=LEFT,
+                             lmargin1=30)
+        self.chat.tag_add('msgS', 1.0)
+        self.chat.tag_config('msgS',
+                             font=("Bahnschrift", 14),
+                             background="#e4f9f5",
+                             foreground='#11999e',
+                             justify=RIGHT,
+                             rmargin=30, lmargin1=60, lmargin2=60)
+        self.chat.tag_add('receiver', 1.0)
+        self.chat.tag_config('receiver',
+                             font=("Bahnschrift", 12, 'bold'),
+                             background="#f85f73",
+                             foreground='#283c63',
+                             justify=RIGHT,
+                             rmargin=30)
+        self.chat.tag_add('msgR', 1.0)
+        self.chat.tag_config('msgR',
+                             font=("Bahnschrift", 14),
+                             background="#fbe8d3",
+                             foreground='#928a97',
+                             justify=LEFT,
+                             rmargin=60,
+                             lmargin1=30, lmargin2=30)
         message = StringVar()
         entry = Entry(self.frame, textvariable=message)
         entry.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
         btn = Button(self.frame, command=lambda: self.send(message), text="Send")
-        btn.grid(row=2, column=0, padx=5, pady=5)
+        btn.grid(row=1, column=1, padx=5, pady=5)
         self.root.after(1, lambda: self.client.listen(self.root, self.chat))
 
     def send(self, message_var: StringVar):
         message = message_var.get()
         self.client.send(message)
-        message = "\n" + self.client.userName + ":\n" + message + "\n"
-        self.chat.insert(END, message)
+        self.chat.insert(END, self.client.userName + "   " + datetime.now().strftime('%H:%M') + '\n', 'sender')
+        self.chat.insert(END, message + '\n', 'msgS')
         message_var.set('')
+        self.chat.yview(END)
 
 
 if __name__ == "__main__":

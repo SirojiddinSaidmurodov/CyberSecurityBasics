@@ -1,4 +1,5 @@
 import socket
+from datetime import datetime
 from tkinter import *
 
 import RSA.rsa as rsa
@@ -96,12 +97,12 @@ class Client:
                 self.cache.append(plain_bytes.rstrip(b'\x00'))
             else:
                 message_bytes = b''.join(self.cache)
-                print(message_bytes)
                 message_text = message_bytes.decode('utf-8')
-                print(message_text)
-                text = "\n" + self.peerName + ":\n" + message_text + "\n"
-                chat.insert(END, text)
+                chat.insert(END, self.peerName + "   " + datetime.now().strftime('%H:%M') + '\n', 'receiver')
+
+                chat.insert(END, message_text + '\n', 'msgR')
                 self.cache.clear()
+                chat.yview(END)
         except Exception:
             root.after(1, lambda: self.listen(root, chat))
             return
