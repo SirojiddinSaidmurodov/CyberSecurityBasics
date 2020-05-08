@@ -17,7 +17,7 @@ def eyler(a, m):
     return exp_mod(a, m - 1, m)
 
 
-interval = 100
+interval = 250
 time1 = []
 time2 = []
 time3 = []
@@ -42,11 +42,12 @@ for i in range(4, interval):
 plt.subplot(211)
 plt.plot(range(4, 24), time1, label="Brut force")
 plt.legend()
+plt.xticks(range(0, 24, 1))
 
 plt.subplot(212)
 plt.plot(range(4, interval), time2, label="Eyler")
 plt.plot(range(4, interval), time3, label="PAE")
 plt.xlabel('bit-length of i')
-plt.ylabel('time spent (ns)')
+plt.ylabel('time spent (ms)')
 plt.legend()
 plt.show()

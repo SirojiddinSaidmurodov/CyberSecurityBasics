@@ -81,7 +81,7 @@ class Messenger:
         frame_name = "Chat with " + self.client.peerName
         self.frame = LabelFrame(self.root, text=frame_name)
         self.frame.pack(padx=5, pady=5, expand=1, fill=BOTH)
-        self.chat = Text(self.frame, width=46, height=31)
+        self.chat = Text(self.frame, width=46, height=32)
         self.chat.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
         self.chat.tag_add('sender', 1.0)
         self.chat.tag_config('sender',
@@ -121,11 +121,13 @@ class Messenger:
 
     def send(self, message_var: StringVar):
         message = message_var.get()
-        self.client.send(message)
-        self.chat.insert(END, self.client.userName + "   " + datetime.now().strftime('%H:%M') + '\n', 'sender')
-        self.chat.insert(END, message + '\n', 'msgS')
-        message_var.set('')
-        self.chat.yview(END)
+        message = message.strip()
+        if len(message) > 0:
+            self.client.send(message)
+            self.chat.insert(END, self.client.userName + "   " + datetime.now().strftime('%H:%M') + '\n', 'sender')
+            self.chat.insert(END, message + '\n', 'msgS')
+            message_var.set('')
+            self.chat.yview(END)
 
 
 if __name__ == "__main__":

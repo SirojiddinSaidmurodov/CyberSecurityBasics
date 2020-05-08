@@ -22,7 +22,7 @@ def get_random_prime_number(length: int) -> int:
 
 def get_random_mutually_prime_number(number: int) -> int:
     """
-    :return A random number that coprime (mutually prime) number
+    :return A random number that co-prime (mutually prime) number
     :type number: int
     """
     while True:
