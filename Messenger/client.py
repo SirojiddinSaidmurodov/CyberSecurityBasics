@@ -32,8 +32,8 @@ class Client:
             sock.close()
             raise Exception('The name "' + name + '" already in use. Choose another one!')
         e, n = self.pKey
-        sock.send(e.to_bytes(256, byteorder='big', signed=False))
-        sock.send(n.to_bytes(256, byteorder='big', signed=False))
+        sock.send(e.to_bytes(self.length, byteorder='big', signed=False))
+        sock.send(n.to_bytes(self.length, byteorder='big', signed=False))
         self.userName = name
         sock.close()
 
@@ -44,8 +44,8 @@ class Client:
         sock.send(name.encode('utf-8'))
         if sock.recv(2) == b'\x11\x11':
             self.peerName = name
-            self.peerKey = (int.from_bytes(sock.recv(256), byteorder='big', signed=False),
-                            int.from_bytes(sock.recv(256), byteorder='big', signed=False))
+            self.peerKey = (int.from_bytes(sock.recv(self.length), byteorder='big', signed=False),
+                            int.from_bytes(sock.recv(self.length), byteorder='big', signed=False))
             self.peerAdr = (
                 sock.recv(50).decode("utf-8"), int.from_bytes(sock.recv(16), byteorder='big', signed=False))
             sock.close()

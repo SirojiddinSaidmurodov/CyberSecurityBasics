@@ -1,6 +1,6 @@
 import socket
 
-key_length = 256
+key_length = 128
 users = []
 
 
