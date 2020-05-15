@@ -3,7 +3,7 @@ import random
 import RSA.Additional.quick_exp as exp
 
 
-def isPrimeTrialDivision(n: int) -> bool:
+def is_prime_trial_division(n: int) -> bool:
     if n == 2:
         return True
     if n % 2 == 0:
@@ -32,6 +32,7 @@ def is_prime_mr(n: int, rounds: int = 0) -> bool:
         x = exp.exp_mod(a, t, n)
         if x == 1 or x == n - 1:
             continue
+
         for j in range(s - 1):
             x = (x ** 2) % n
             if x == n - 1:
