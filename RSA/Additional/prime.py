@@ -14,16 +14,18 @@ def isPrimeTrialDivision(n: int) -> bool:
     return True
 
 
-def isPrimeMR(n: int, rounds: int) -> bool:
-    found = False
+def is_prime_mr(n: int, rounds: int = 0) -> bool:
+    if rounds == 0:
+        rounds = n.bit_length()
+
     t = n - 1
     s = 0
-    while not found:
+    while True:
         if t % 2 == 0:
             t >>= 1
             s += 1
         else:
-            found = True
+            break
 
     for i in range(rounds):
         a = random.randint(2, n - 1)
@@ -34,9 +36,11 @@ def isPrimeMR(n: int, rounds: int) -> bool:
             x = (x ** 2) % n
             if x == n - 1:
                 break
-        return False
+        else:
+            return False
     return True
 
 
 if __name__ == "__main__":
-    print(isPrimeMR(53, (50).bit_length()))
+    m = 4271
+    print(is_prime_mr(m))

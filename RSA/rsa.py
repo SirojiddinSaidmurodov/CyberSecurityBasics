@@ -16,7 +16,7 @@ def get_random_prime_number(length: int) -> int:
     b = (a * 2) - 1
     while True:
         result = random.randint(a, b)
-        if prime.isPrimeMR(result, int(math.log(result, 2))):
+        if prime.is_prime_mr(result, int(math.log(result, 2))):
             return result
 
 
