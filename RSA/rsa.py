@@ -83,9 +83,6 @@ class RSAKeyGen:
         self.e = 0
         self.d = 0
 
-    def get_length(self):
-        return self.n.bit_length() // 8
-
 
 if __name__ == "__main__":
     print(RSAKeyGen().get_public_key())

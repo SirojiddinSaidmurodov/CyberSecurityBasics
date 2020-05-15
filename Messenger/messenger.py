@@ -8,7 +8,7 @@ class Messenger:
     def __init__(self, root):
         self.root = root
         self.root.geometry("400x600+400+50")
-        self.root.title("RSA-клиент. Автор: Саидмуродов Сирожиддин")
+        self.root.title("Author: Saidmurodov Sirojiddin, 09-852")
         self.root.resizable(0, 0)
         self.frame = LabelFrame(self.root, text="Enter server address")
         self.chat = Text()

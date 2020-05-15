@@ -30,13 +30,16 @@ for i in range(4, interval):
         brutforce(k, p)
         end = time.time_ns()
         time1.append((end - start) / 1000000)
+
     start = time.time_ns()
     eyler(k, p)
     end = time.time_ns()
+
     time2.append((end - start) / 1000000)
     start = time.time_ns()
     euclidean_algorithms.PAE(k, p)
     end = time.time_ns()
+
     time3.append((end - start) / 1000000)
 
 plt.subplot(211)
