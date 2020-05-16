@@ -7,7 +7,7 @@ import RSA.rsa as rsa
 
 def generate_public_keys_params(length=128):
     while True:
-        q = rsa.get_random_prime_number(length)
+        q = rsa.get_random_prime_number(length - 1)
         p = 2 * q + 1
         if prime.is_prime_mr(p):
             break
@@ -35,7 +35,8 @@ class DH:
         self.g = g
         self.p = p
         self.secret_param = randint(2, p)
-        return exp.exp_mod(self.g, self.secret_param, self.p)
+        self.public_key = exp.exp_mod(self.g, self.secret_param, self.p)
+        return self.public_key
 
     def calc_common_key(self, peer_public_key):
         self.common_key = exp.exp_mod(peer_public_key, self.secret_param, self.p)
@@ -43,4 +44,17 @@ class DH:
 
 
 if __name__ == "__main__":
-    print(generate_public_keys_params())
+    Alice = DH()
+    print()
+    Bob = DH()
+    x, y, z = Alice.generate()
+    Bob.calc_public_key(Alice.g, Alice.p)
+    print(x)
+    print(x.bit_length())
+    print(y)
+    print(y.bit_length())
+    print(z)
+    print(z.bit_length())
+
+    print(Alice.calc_common_key(Bob.public_key))
+    print(Bob.calc_common_key(Alice.public_key))
