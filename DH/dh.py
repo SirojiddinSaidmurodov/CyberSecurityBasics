@@ -12,7 +12,7 @@ def generate_public_keys_params(length=128):
         if prime.is_prime_mr(p):
             break
 
-    g = randint(2, p)
+    g = randint(2, p - 2)
     a = randint(2, p)
     return a, g, p
 
