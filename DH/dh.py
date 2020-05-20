@@ -11,8 +11,10 @@ def generate_public_keys_params(length=128):
         p = 2 * q + 1
         if prime.is_prime_mr(p):
             break
-
-    g = randint(2, p - 2)
+    while True:
+        g = randint(2, p - 2)
+        if exp.exp_mod(g, 2, p) != 1 and exp.exp_mod(g, q, p) != 1:
+            break
     a = randint(2, p)
     return a, g, p
 
