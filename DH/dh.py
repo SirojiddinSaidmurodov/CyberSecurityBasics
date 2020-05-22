@@ -5,17 +5,19 @@ import RSA.Additional.quick_exp as exp
 import RSA.rsa as rsa
 
 
-def generate_public_keys_params(length=128):
+def generate_public_keys_params(length):
     while True:
         q = rsa.get_random_prime_number(length - 1)
         p = 2 * q + 1
         if prime.is_prime_mr(p):
             break
+
     while True:
         g = randint(2, p - 2)
         if exp.exp_mod(g, 2, p) != 1 and exp.exp_mod(g, q, p) != 1:
             break
-    a = randint(2, p)
+
+    a = randint(2, p - 2)
     return a, g, p
 
 
@@ -36,7 +38,7 @@ class DH:
     def calc_public_key(self, g, p):
         self.g = g
         self.p = p
-        self.secret_param = randint(2, p)
+        self.secret_param = randint(2, p - 2)
         self.public_key = exp.exp_mod(self.g, self.secret_param, self.p)
         return self.public_key
 
